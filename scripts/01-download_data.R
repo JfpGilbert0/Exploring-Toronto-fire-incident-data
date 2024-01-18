@@ -11,16 +11,14 @@
 #### Workspace setup ####
 library(opendatatoronto)
 library(tidyverse)
-# [...UPDATE THIS...]
+library(dplyr)
 
 #### Download data ####
-# [...ADD CODE HERE TO DOWNLOAD...]
-
+fire_incidents <- 
+  list_package_resources("64a26694-01dc-4ec3-aa87-ad8509604f50") |>
+  filter(name == "Fire Incidents Data.csv") |>
+  get_resource()
 
 
 #### Save data ####
-# [...UPDATE THIS...]
-# change the_raw_data to whatever name you assigned when you downloaded it.
-write_csv(the_raw_data, "inputs/data/raw_data.csv") 
-
-         
+write_csv(fire_incidents, "inputs/data/fire_incidents_data.csv")
