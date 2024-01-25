@@ -10,50 +10,46 @@
 #### Workspace setup ####
 library(tidyverse)
 library(dplyr)
+library(janitor)
 
 #### Clean data ####
-raw_data <- read_csv("inputs/data/fire_incidents_data.csv")
+raw_data <- read_csv("inputs/data/fire_incidents_data.csv", show_col_types = FALSE)
 
 cleaned_data <-
   raw_data |>
   janitor::clean_names() |>
   mutate(
+    date = as_date(tfs_alarm_time),
+    hour = hour(tfs_alarm_time),
     estimated_dollar_loss = ifelse(is.na(estimated_dollar_loss), 0, estimated_dollar_loss),
-    ignition_source = ifelse(is.na(ignition_source), "other", ignition_source),
-    is_highrise = as.numeric(grepl("highrise", initial_cad_event_type, ignore.case = TRUE)),
-    is_downtown = as.numeric(grepl("downtown", initial_cad_event_type, ignore.case = TRUE)),
+    is_not_property = ifelse(is.na(business_impact), "#052c66cb", "red"),
+    is_highrise = grepl("highrise", initial_cad_event_type, ignore.case = TRUE),
+    is_downtown = grepl("downtown", initial_cad_event_type, ignore.case = TRUE),
     location = case_when(
       grepl("vehicle", initial_cad_event_type, ignore.case = TRUE) ~ "vehicle",
       grepl("residential", initial_cad_event_type, ignore.case = TRUE) ~ "residential",
       grepl("industrial", initial_cad_event_type, ignore.case = TRUE) ~ "commercial/industrial",
       grepl("institution", initial_cad_event_type, ignore.case = TRUE) ~ "institution",
       grepl("grass", initial_cad_event_type, ignore.case = TRUE) ~ "grass/rubbish",
-      grepl("subway", initial_cad_event_type, ignore.case = TRUE) ~ "subway",
-      TRUE ~ "other"),
-    ignition_source = case_match(ignition_source,
-      "11 - Stove, Range-top burner" ~ "Stove",
-      "71 - Smoker's Articles (eg. cigarettes, cigars, pipes already ignited" ~ "Smoker' Article",
-      "55 - Candle" ~ "Candle",
-      "77 - Matches or Lighters (unable to distinguish)" ~ "Matches",
-      "19 - Other Cooking Items (eg Toaster, Kettle, elec frying pan)" ~ "Cooking item",
-      "43 - Clothes Dryer" ~ "Dryer",
-      "79 - Other Open Flame Tools/Smokers' Articles" ~ "Open Flame"
-    )
+      grepl("subway", initial_cad_event_type, ignore.case = TRUE) ~ "subway")
   ) |>
+  filter(date > as_date("2020-01-01")) |>
   filter(is.numeric(incident_station_area)) |>
-  filter(!is.na(final_incident_type))
+  filter(!is.na(final_incident_type)) |>
+  filter(!is.na(longitude)) |>
+  filter(longitude != 0) |>
+  filter(number_of_responding_personnel != 0 | !is.na(number_of_responding_personnel))
 
 #### Save cleaned data ####
 write_csv(cleaned_data, "outputs/data/cleaned_fire_incident_data.csv")
 
 #### Data subset ####
 # Leaves behind all unused columns in the analysis 
-clean_subset  <-
-  select(cleaned_data, c("x_id", "area_of_origin", "incident_station_area", "civilian_casualties",
-                         "estimated_dollar_loss", "extent_of_fire", "ignition_source", "final_incident_type",
-                         "initial_cad_event_type", "method_of_fire_control", "tfs_alarm_time", "tfs_arrival_time"))
+long_lat <-
+  select(filter(cleaned_data, !is.na(longitude)), c("longitude", "latitude", "estimated_dollar_loss"))
 
-fire_location_cost <-
-  select(cleaned_data, c("location", "is_highrise", "is_downtown", "estimated_dollar_loss", "ignition_source"))
+fire_data_subset <-
+  select(cleaned_data, c( "is_not_property", "estimated_dollar_loss",
+                         "ignition_source", "longitude", "latitude", "hour"))
 
-write_csv(fire_location_cost, "outputs/data/fire_event_data.csv")
+write_csv(fire_data_subset, "outputs/data/fire_event_data.csv")
