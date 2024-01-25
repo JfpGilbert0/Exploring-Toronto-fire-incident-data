@@ -1,11 +1,11 @@
 #### Preamble ####
-# Purpose: Models... [...UPDATE THIS...]
-# Author: Rohan Alexander [...UPDATE THIS...]
-# Date: 11 February 2023 [...UPDATE THIS...]
-# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
+# Purpose: Models using in paper using cleaned opensourcetoronto fire incident data.
+# Author: Jacob Gilbert
+# Date: 25 January 2024
+# Contact: j.gilbert@mail.utoronto.ca
 # License: MIT
-# Pre-requisites: [...UPDATE THIS...]
-# Any other information needed? [...UPDATE THIS...]
+# Pre-requisites: 02-data_cleaning.R
+# information: some files had to be imported here as they couldnt be saved as csv
 
 
 #### Workspace setup ####

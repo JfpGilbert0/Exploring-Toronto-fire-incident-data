@@ -16,10 +16,10 @@ library(dplyr)
 
 # Simulated Fire Incident Data
 simulated_fire_incidents <- tibble(
-  date = seq(as.Date("2022-01-01"), as.Date("2022-01-10"), by = "1 Month"),
-  cause = sample(c("Electrical", "Kitchen", "Arson", "Unknown"), 10, replace = TRUE), # nolint: line_length_linter.
-  location = sample(c("Residential", "Commercial", "Industrial"), 10, replace = TRUE), # nolint: line_length_linter.
-  casualties = sample(0:5, 12, replace = TRUE),
-  damage = sample(0:10000, 12, replace=TRUE) 
-) <-
-  simulated_fire_incidents$date <- format(fire_incidents$date, "%Y-%m")
+  property_type = sample(c("residential", "Business", "non-building"), 100, replace = TRUE),
+  estimated_dollar_loss = runif(100, 1000, 50000),
+  ignition_source = sample(c("Electrical", "Cooking", "Candles", "Other"), 100, replace = TRUE),
+  longitude = rnorm(100, mean = -79.3832, sd = 0.1),
+  latitude = rnorm(100, mean = 43.6532, sd = 0.1),
+  hour = sample(0:23, 100, replace = TRUE)
+)
